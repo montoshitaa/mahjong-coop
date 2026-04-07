@@ -10,13 +10,11 @@ async function startServer() {
   const app = express();
   const httpServer = createServer(app);
 
-  app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173']
-  }));
+  app.use(cors());
 
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: ['http://localhost:3000', 'http://localhost:5173'],
+      origin: '*',
       methods: ['GET', 'POST']
     }
   });
