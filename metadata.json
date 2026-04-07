@@ -1,0 +1,5 @@
+{
+  "name": "Multiplayer Mahjong",
+  "description": "A collaborative multiplayer Mahjong game built with React, Socket.io, and TypeScript.",
+  "requestFramePermissions": []
+}
