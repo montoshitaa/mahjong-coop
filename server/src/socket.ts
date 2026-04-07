@@ -1,8 +1,8 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { createGame, addPlayer, removePlayer, selectTile } from './game';
+import { createGame, addPlayer, removePlayer, selectTile, reshuffleIfDeadlocked } from './game';
 import { GameState } from './types';
 
-let gameState: GameState = createGame(15);
+let gameState: GameState = createGame();
 
 export function setupSocket(io: SocketIOServer): void {
   io.on('connection', (socket: Socket) => {
@@ -14,19 +14,37 @@ export function setupSocket(io: SocketIOServer): void {
     });
 
     socket.on('tile:select', ({ tileId }: { tileId: string }) => {
-      const { newState, event } = selectTile(gameState, tileId, socket.id);
+      const { newState, event, reshuffled } = selectTile(gameState, tileId, socket.id);
       gameState = newState;
       io.emit('game:state', gameState);
 
+      if (reshuffled) {
+        io.emit('game:reshuffled');
+      }
+
       if (event === 'no-match') {
         setTimeout(() => {
-          // The checkMatch function in game.ts already resets the tiles synchronously
-          // but the user wants to emit the state again after 1000ms.
-          // In game.ts, checkMatch resets flipped/locked state if no match.
-          // So we just emit the current gameState which already has them reset.
           io.emit('game:state', gameState);
         }, 1000);
       }
+    });
+
+    socket.on('game:hint', () => {
+      // Find first valid pair among free tiles
+      const free = gameState.tiles.filter(t => t.isFree && !t.isMatched);
+      const symbolMap: Record<string, string> = {};
+      let hintPair: [string, string] | null = null;
+
+      for (const tile of free) {
+        if (symbolMap[tile.symbol]) {
+          hintPair = [symbolMap[tile.symbol], tile.id];
+          break;
+        }
+        symbolMap[tile.symbol] = tile.id;
+      }
+
+      // Emit hint only to the requesting socket (not broadcast)
+      socket.emit('game:hint:result', hintPair);
     });
 
     socket.on('disconnect', () => {

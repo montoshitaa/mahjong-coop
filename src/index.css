@@ -1,1 +1,90 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  font-family:
+    'Segoe UI Emoji',    /* Windows */
+    'Apple Color Emoji', /* macOS / iOS */
+    'Noto Color Emoji',  /* Linux / Android */
+    'Android Emoji',
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#0a0a1a] text-slate-200 overflow-hidden;
+    font-family: var(--font-sans);
+  }
+}
+
+@keyframes tileMatch {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+@keyframes pulseSelected {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes hintPulse {
+  0% { box-shadow: 0 0 10px #39ff14; }
+  100% { box-shadow: 0 0 24px #39ff14, 0 0 48px rgba(57,255,20,0.3); }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-tile-match {
+  animation: tileMatch 0.3s forwards;
+}
+
+.animate-float-up {
+  animation: floatUp 1s forwards;
+}
+
+.animate-pulse-selected {
+  animation: pulseSelected 1s infinite ease-in-out;
+}
+
+.animate-hint-pulse {
+  animation: hintPulse 0.6s ease-in-out infinite alternate;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 3s linear infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a1a2e;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a3e;
+}

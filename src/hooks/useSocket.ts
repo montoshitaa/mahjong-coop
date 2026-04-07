@@ -9,6 +9,9 @@ interface UseSocketReturn {
   currentPlayerId: string | null;
   joinGame: (name: string) => void;
   selectTile: (tileId: string) => void;
+  requestHint: () => void;
+  hintPair: [string, string] | null;
+  wasReshuffled: boolean;
 }
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || window.location.origin;
@@ -18,6 +21,8 @@ const useSocket = (): UseSocketReturn => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
+  const [hintPair, setHintPair] = useState<[string, string] | null>(null);
+  const [wasReshuffled, setWasReshuffled] = useState<boolean>(false);
 
   useEffect(() => {
     const socket = io(SERVER_URL);
@@ -34,6 +39,18 @@ const useSocket = (): UseSocketReturn => {
 
     socket.on('game:state', (state: GameState) => {
       setGameState(state);
+    });
+
+    socket.on('game:hint:result', (pair: [string, string] | null) => {
+      setHintPair(pair);
+      // Auto-clear hint after 3 seconds
+      setTimeout(() => setHintPair(null), 3000);
+    });
+
+    socket.on('game:reshuffled', () => {
+      // Trigger a UI notification (handled in App.tsx)
+      setWasReshuffled(true);
+      setTimeout(() => setWasReshuffled(false), 2500);
     });
 
     return () => {
@@ -53,6 +70,12 @@ const useSocket = (): UseSocketReturn => {
     }
   };
 
+  const requestHint = () => {
+    if (socketRef.current) {
+      socketRef.current.emit('game:hint');
+    }
+  };
+
   return {
     socket: socketRef.current,
     gameState,
@@ -60,6 +83,9 @@ const useSocket = (): UseSocketReturn => {
     currentPlayerId,
     joinGame,
     selectTile,
+    requestHint,
+    hintPair,
+    wasReshuffled,
   };
 };
 

@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, Clock, Users, Activity } from 'lucide-react';
+import { Trophy, Clock, Users, Sparkles, RotateCcw } from 'lucide-react';
 import useSocket from './hooks/useSocket';
 import Lobby from './components/Lobby';
 import Board from './components/Board';
-import Scoreboard from './components/Scoreboard';
+import PlayerCard from './components/PlayerCard';
 import LiveChart from './components/LiveChart';
+import { getPlayerColor, PlayerColor } from './constants/playerColors';
 
 export default function App() {
   const { 
@@ -18,95 +19,185 @@ export default function App() {
     isConnected, 
     currentPlayerId, 
     joinGame, 
-    selectTile 
+    selectTile,
+    requestHint,
+    hintPair,
+    wasReshuffled
   } = useSocket();
+
+  const [highlightFree, setHighlightFree] = useState(true);
+  const [time, setTime] = useState('00:00');
 
   const hasJoined = useMemo(() => {
     return gameState?.players.some(p => p.id === currentPlayerId);
   }, [gameState?.players, currentPlayerId]);
 
+  const playerColorMap = useMemo(() => {
+    const map: Record<string, PlayerColor> = {};
+    if (gameState) {
+      gameState.players.forEach((p, i) => {
+        map[p.id] = getPlayerColor(i);
+      });
+    }
+    return map;
+  }, [gameState?.players]);
+
+  const activePlayerId = useMemo(() => {
+    if (!gameState) return null;
+    // Find player who has a tile locked
+    const lockedTile = gameState.tiles.find(t => t.lockedBy !== null);
+    if (lockedTile) return lockedTile.lockedBy;
+    return null;
+  }, [gameState?.tiles]);
+
+  const sortedPlayers = useMemo(() => {
+    if (!gameState) return [];
+    return [...gameState.players].sort((a, b) => b.score - a.score);
+  }, [gameState?.players]);
+
   const winner = useMemo(() => {
     if (!gameState?.isGameOver || !gameState.players.length) return null;
-    return [...gameState.players].sort((a, b) => b.score - a.score)[0];
-  }, [gameState?.isGameOver, gameState?.players]);
+    return sortedPlayers[0];
+  }, [gameState?.isGameOver, sortedPlayers]);
 
-  const elapsedTime = useMemo(() => {
-    if (!gameState?.startTime) return '0:00';
-    const end = gameState.isGameOver ? (gameState.scoreHistory[gameState.scoreHistory.length - 1]?.timestamp || Date.now()) : Date.now();
-    const seconds = Math.floor((end - gameState.startTime) / 1000);
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }, [gameState?.startTime, gameState?.isGameOver, gameState?.scoreHistory]);
+  const pairsRemaining = useMemo(() => {
+    if (!gameState) return 0;
+    return gameState.tiles.filter(t => !t.isMatched).length / 2;
+  }, [gameState?.tiles]);
+
+  useEffect(() => {
+    if (!gameState?.startTime || gameState.isGameOver) return;
+
+    const interval = setInterval(() => {
+      const seconds = Math.floor((Date.now() - gameState.startTime!) / 1000);
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      setTime(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameState?.startTime, gameState?.isGameOver]);
 
   if (!gameState || !hasJoined) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 selection:bg-blue-500/30">
+      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center p-4 selection:bg-blue-500/30">
         <Lobby joinGame={joinGame} isConnected={isConnected} />
       </div>
     );
   }
 
+  const renderPlayerCards = () => {
+    const players = gameState.players;
+    const cards = players.map((player) => {
+      const rank = sortedPlayers.findIndex(p => p.id === player.id) + 1;
+      return (
+        <PlayerCard
+          key={player.id}
+          player={player}
+          color={playerColorMap[player.id]}
+          isCurrentTurn={activePlayerId === player.id || (activePlayerId === null && player.id === currentPlayerId)}
+          isCurrentPlayer={player.id === currentPlayerId}
+          rank={rank}
+        />
+      );
+    });
+
+    const positions = [
+      "bottom-8 left-1/2 -translate-x-1/2", // Player 0
+      "top-8 left-1/2 -translate-x-1/2",    // Player 1
+      "right-8 top-1/2 -translate-y-1/2 rotate-90 origin-center", // Player 2
+      "left-8 top-1/2 -translate-y-1/2 -rotate-90 origin-center", // Player 3
+    ];
+
+    return cards.map((card, i) => (
+      <div key={players[i].id} className={`absolute z-50 transition-all duration-500 ${positions[i]}`}>
+        {card}
+      </div>
+    ));
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-blue-500/30">
+    <div className="h-screen flex flex-col bg-[#0a0a1a] text-slate-200 overflow-hidden font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 rounded-lg shadow-lg shadow-blue-900/20">
-              <Activity className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">Mahjong Colaborativo</h1>
+      <header className="h-12 flex-shrink-0 bg-[#0d0d1a] border-b border-slate-800 px-6 flex items-center justify-between z-40">
+        <div className="flex items-center gap-4">
+          <h1 className="text-lg font-black tracking-tighter text-[#39ff14] flex items-center gap-2">
+            <span className="text-2xl">麻将</span>
+            MAHJONG
+          </h1>
+          <div className="h-4 w-px bg-slate-800" />
+          <button 
+            onClick={() => setHighlightFree(!highlightFree)}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${highlightFree ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30' : 'bg-slate-800 text-slate-500 border border-transparent'}`}
+          >
+            <Sparkles className="w-3 h-3" />
+            {highlightFree ? 'Highlight ON' : 'Highlight OFF'}
+          </button>
+          <button
+            onClick={requestHint}
+            disabled={hintPair !== null}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${hintPair ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} bg-[#0a2e0a] text-[#39ff14] border border-[#39ff14]/30`}
+          >
+            <Sparkles className="w-3 h-3" />
+            💡 Hint
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2 font-mono text-xl font-bold text-white bg-black/40 px-4 py-0.5 rounded-md border border-slate-800">
+            <Clock className="w-4 h-4 text-slate-500" />
+            {time}
           </div>
-          
-          <div className="flex items-center gap-6 text-sm font-medium">
-            <div className="flex items-center gap-2 text-slate-400">
-              <Clock className="w-4 h-4" />
-              <span>{elapsedTime}</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <Users className="w-4 h-4" />
-              <span>{gameState.players.filter(p => p.isConnected).length} Online</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500'}`} />
-              <span className={isConnected ? 'text-green-400' : 'text-red-400'}>
-                {isConnected ? 'Connected' : 'Disconnected'}
-              </span>
-            </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <div className="text-xs font-bold uppercase tracking-widest text-amber-500 flex items-center gap-2">
+            <span className="text-lg font-black">{pairsRemaining}</span>
+            PAIRS LEFT
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500'}`} />
+            <span className={`text-[10px] font-bold uppercase tracking-widest ${isConnected ? 'text-green-400' : 'text-red-400'}`}>
+              {isConnected ? 'Live' : 'Offline'}
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Board and Chart */}
-        <div className="lg:col-span-8 space-y-8">
-          <section>
-            <Board 
-              tiles={gameState.tiles} 
-              currentPlayerId={currentPlayerId} 
-              onSelectTile={selectTile} 
-            />
-          </section>
-          
-          <section>
-            <LiveChart 
-              scoreHistory={gameState.scoreHistory} 
-              players={gameState.players} 
-            />
-          </section>
+      {/* Main Board Area */}
+      <main className="flex-1 relative overflow-hidden p-4 flex items-center justify-center">
+        {renderPlayerCards()}
+        
+        <div className="w-full h-full max-w-[1100px] max-h-[700px]">
+          <Board 
+            tiles={gameState.tiles} 
+            currentPlayerId={currentPlayerId} 
+            onSelectTile={selectTile}
+            highlightFree={highlightFree}
+            playerColorMap={playerColorMap}
+            hintPair={hintPair}
+          />
         </div>
 
-        {/* Right Column: Scoreboard */}
-        <aside className="lg:col-span-4">
-          <div className="sticky top-28">
-            <Scoreboard 
-              players={gameState.players} 
-              currentPlayerId={currentPlayerId} 
-            />
-          </div>
-        </aside>
+        {/* Reshuffle Notification */}
+        <AnimatePresence>
+          {wasReshuffled && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -20, x: '-50%' }}
+              className="fixed top-20 left-1/2 z-[9999] bg-[#1a1a00] border border-[#ffcc00] text-[#ffcc00] px-6 py-3 rounded-xl font-mono text-sm shadow-[0_0_20px_rgba(255,204,0,0.3)] flex items-center gap-3"
+            >
+              <RotateCcw className="w-4 h-4 animate-spin-slow" />
+              🔀 No moves left — board reshuffled!
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Minimized Live Chart in corner */}
+        <div className="absolute bottom-4 right-4 w-64 h-32 opacity-40 hover:opacity-100 transition-opacity z-10">
+          <LiveChart scoreHistory={gameState.scoreHistory} players={gameState.players} />
+        </div>
       </main>
 
       {/* Victory Overlay */}
@@ -116,49 +207,56 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-xl p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl"
+              className="max-w-2xl w-full bg-[#12122a] border border-slate-800 rounded-3xl p-10 text-center shadow-[0_0_50px_rgba(57,255,20,0.2)]"
             >
-              <div className="inline-flex p-4 bg-yellow-500/10 rounded-full mb-6">
-                <Trophy className="w-12 h-12 text-yellow-500" />
+              <div className="text-8xl mb-6">🏆</div>
+              
+              <h2 className="text-5xl font-black text-white mb-2 tracking-tighter uppercase">Victory!</h2>
+              <p className="text-slate-400 mb-8 text-lg">The board has been cleared in record time.</p>
+              
+              <div className="grid grid-cols-2 gap-6 mb-10">
+                <div className="bg-black/40 rounded-2xl p-6 border border-slate-800">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Winner</div>
+                  <div className="text-3xl font-black text-[#39ff14] tracking-tight">{winner?.name}</div>
+                  <div className="text-sm text-slate-400 mt-1">{winner?.score} matches</div>
+                </div>
+                <div className="bg-black/40 rounded-2xl p-6 border border-slate-800">
+                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Time</div>
+                  <div className="text-3xl font-black text-white font-mono">{time}</div>
+                  <div className="text-sm text-slate-400 mt-1">Elapsed</div>
+                </div>
               </div>
-              
-              <h2 className="text-3xl font-bold text-white mb-2">Game Over!</h2>
-              <p className="text-slate-400 mb-8">All tiles have been matched.</p>
-              
-              <div className="bg-slate-800/50 rounded-2xl p-6 mb-8 space-y-4">
-                <div>
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Winner</div>
-                  <div className="text-2xl font-bold text-blue-400">{winner?.name}</div>
-                  <div className="text-sm text-slate-400">{winner?.score} matches found</div>
-                </div>
-                <div className="pt-4 border-t border-slate-700/50">
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Time</div>
-                  <div className="text-xl font-semibold text-white">{elapsedTime}</div>
-                </div>
+
+              <div className="w-full mb-10 max-h-48 overflow-y-auto custom-scrollbar flex flex-wrap justify-center gap-4">
+                {gameState.players.map(p => (
+                  <PlayerCard 
+                    key={p.id}
+                    player={p}
+                    color={playerColorMap[p.id]}
+                    isCurrentTurn={false}
+                    isCurrentPlayer={p.id === currentPlayerId}
+                    rank={sortedPlayers.findIndex(sp => sp.id === p.id) + 1}
+                  />
+                ))}
               </div>
 
               <button 
                 onClick={() => window.location.reload()}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-blue-900/20 active:scale-95"
+                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-[#39ff14] text-black font-black rounded-full transition-all hover:scale-105 active:scale-95 overflow-hidden"
               >
-                Play Again
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform" />
+                <RotateCcw className="w-6 h-6 relative z-10" />
+                <span className="text-xl relative z-10">PLAY AGAIN</span>
               </button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-6 py-12 text-center border-t border-slate-900">
-        <p className="text-slate-600 text-sm">
-          Collaborative Mahjong &bull; Built with React, Socket.io & Framer Motion
-        </p>
-      </footer>
     </div>
   );
 }
