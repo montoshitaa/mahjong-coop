@@ -63,7 +63,7 @@ export default function App() {
   }, [gameState?.isGameOver, sortedPlayers]);
 
   const pairsRemaining = useMemo(() => {
-    if (!gameState) return 0;
+    if (!gameState || !gameState.tiles) return 0;
     return gameState.tiles.filter(t => !t.isMatched).length / 2;
   }, [gameState?.tiles]);
 

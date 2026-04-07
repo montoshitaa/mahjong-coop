@@ -58,7 +58,7 @@ const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, onSelectTile, pla
         newlyMatched.forEach(tile => {
           const prevTile = prevTiles.find(pt => pt.id === tile.id);
           const matcherId = prevTile?.lockedBy;
-          const color = playerColorMap[matcherId || '']?.particle || '#ffffff';
+          const color = matcherId ? playerColorMap[matcherId]?.particle || '#ffffff' : '#ffffff';
 
           const pos = tileToPixel(tile.x, tile.y, tile.z);
 

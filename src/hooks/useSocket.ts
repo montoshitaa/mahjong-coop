@@ -18,6 +18,8 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || window.location.origin;
 
 const useSocket = (): UseSocketReturn => {
   const socketRef = useRef<Socket | null>(null);
+  const hintTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const reshuffleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
@@ -25,7 +27,9 @@ const useSocket = (): UseSocketReturn => {
   const [wasReshuffled, setWasReshuffled] = useState<boolean>(false);
 
   useEffect(() => {
-    const socket = io(SERVER_URL);
+    const socket = io(SERVER_URL, {
+      transports: ['websocket', 'polling']
+    });
     socketRef.current = socket;
 
     socket.on('connect', () => {
@@ -43,17 +47,27 @@ const useSocket = (): UseSocketReturn => {
 
     socket.on('game:hint:result', (pair: [string, string] | null) => {
       setHintPair(pair);
-      // Auto-clear hint after 3 seconds
-      setTimeout(() => setHintPair(null), 3000);
+      
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = setTimeout(() => {
+        setHintPair(null);
+        hintTimerRef.current = null;
+      }, 3000);
     });
 
     socket.on('game:reshuffled', () => {
-      // Trigger a UI notification (handled in App.tsx)
       setWasReshuffled(true);
-      setTimeout(() => setWasReshuffled(false), 2500);
+      
+      if (reshuffleTimerRef.current) clearTimeout(reshuffleTimerRef.current);
+      reshuffleTimerRef.current = setTimeout(() => {
+        setWasReshuffled(false);
+        reshuffleTimerRef.current = null;
+      }, 2500);
     });
 
     return () => {
+      if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+      if (reshuffleTimerRef.current) clearTimeout(reshuffleTimerRef.current);
       socket.disconnect();
     };
   }, []);
