@@ -1,36 +1,199 @@
 @import "tailwindcss";
 
-:root {
+:root[data-theme="dark"] {
   /* backgrounds */
   --jungle-bg:        #050e08;
   --jungle-surface:   #0a1f0f;
   --jungle-panel:     #0d1f12;
   --jungle-card:      #112b16;
+  --bg-body:          #050e08;
+  --bg-surface:       #0a1f0f;
+  --bg-panel:         #0d1f12;
+  --bg-card:          #112b16;
+  --bg-board:         radial-gradient(ellipse at center, #0f2d14 0%, #060e08 100%);
+  --board-border:     rgba(212,168,67,0.3);
+  --board-shadow:     0 0 40px rgba(57,255,20,0.08), 0 0 80px rgba(0,0,0,0.8);
+  --board-grid-line:  rgba(45,90,27,0.04);
 
   /* stone tile */
-  --tile-face:        #c8b99a;   /* aged parchment / sandstone */
-  --tile-face-dark:   #a89880;   /* darker sandstone for depth */
-  --tile-edge-right:  #6b5a3e;   /* dark stone right edge */
-  --tile-edge-bottom: #4a3d28;   /* darker stone bottom edge */
-  --tile-border:      #d4a843;   /* golden rune border */
+  --tile-face:        #c8b99a;
+  --tile-face-dark:   #a89880;
+  --tile-edge-right:  linear-gradient(135deg, #4a3520, #2a1f0e);
+  --tile-edge-bottom: linear-gradient(135deg, #2a1f0e, #1a1208);
 
-  /* blocked tile */
-  --tile-blocked:     #1e2e1e;   /* dark moss */
+  /* tile states */
+  --tile-free-bg:     linear-gradient(145deg, #d4c4a0, #c8b080);
+  --tile-free-border: #d4a843;
+  --tile-free-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+  --tile-free-top-highlight: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+  
+  --tile-blocked-bg:  linear-gradient(145deg, #1e2e1a, #151f11);
   --tile-blocked-border: #2d4a2d;
+  --tile-blocked-overlay: rgba(0,0,0,0.55);
+  
+  --tile-hover-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 8px rgba(212,168,67,0.3);
+  
+  /* symbols & runes */
+  --symbol-filter-blocked: grayscale(90%) brightness(0.5);
+  --tile-rune-dot:    rgba(212,168,67,0.5);
+
+  /* UI elements */
+  --header-bg:        linear-gradient(180deg, #0d1f0a 0%, #0a1508 100%);
+  --header-border:    rgba(212,168,67,0.2);
+  --header-shadow:    0 2px 20px rgba(0,0,0,0.5);
+  
+  --title-color:      #d4a843;
+  --title-glow:       0 0 20px rgba(212,168,67,0.5);
+  
+  --timer-color:      #00ffcc;
+  --timer-glow:       0 0 8px rgba(0,255,204,0.5);
+  
+  --pairs-color:      #ff8c00;
+  
+  --hint-btn-bg:      linear-gradient(135deg, #0a2e0a, #061508);
+  --hint-btn-border:  #39ff14;
+  --hint-btn-color:   #39ff14;
+  
+  --playercard-bg:    linear-gradient(135deg, rgba(13,31,10,0.95), rgba(6,10,8,0.95));
+  --score-font-color: #39ff14;
+  --player-name-active: #39ff14;
+  --player-name-inactive: #cbd5e1;
+  --player-label: #64748b;
+  
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-primary: #1e293b;
+  --bg-overlay: rgba(0,0,0,0.4);
+  
+  --chart-bg: #12122a;
+  --chart-border: #1e293b;
+  --chart-grid: #1e293b;
+  --chart-text: #475569;
+  
+  --board-bg:         #050e08;
+  --board-wrapper-bg: rgba(10,31,15,0.4);
+  --board-border:     rgba(57,255,20,0.1);
+  --board-shadow:     0 0 50px rgba(0,0,0,0.5);
 
   /* accents */
-  --jungle-green:     #39ff14;   /* bioluminescent green */
-  --jungle-cyan:      #00ffcc;   /* magical cyan */
-  --jungle-gold:      #ffd700;   /* temple gold */
-  --jungle-amber:     #ff8c00;   /* torchlight */
-  --jungle-purple:    #bf5fff;   /* mystic purple */
-  --jungle-vine:      #2d5a1b;   /* dark vine green */
+  --jungle-green:     #39ff14;
+  --glow-green:       0 0 12px #39ff14, 0 0 28px rgba(57,255,20,0.3);
+  --glow-gold:        0 0 12px #ffd700, 0 0 28px rgba(255,215,0,0.3);
+  --glow-cyan:        0 0 12px #00ffcc, 0 0 28px rgba(0,255,204,0.3);
+  --glow-purple:      0 0 12px #bf5fff, 0 0 28px rgba(191,95,255,0.3);
 
-  /* glow effects */
-  --glow-green:  0 0 12px #39ff14, 0 0 28px rgba(57,255,20,0.3);
-  --glow-gold:   0 0 12px #ffd700, 0 0 28px rgba(255,215,0,0.3);
-  --glow-cyan:   0 0 12px #00ffcc, 0 0 28px rgba(0,255,204,0.3);
-  --glow-purple: 0 0 12px #bf5fff, 0 0 28px rgba(191,95,255,0.3);
+  --firefly-opacity:  1;
+
+  --scrollbar-track:  #050e08;
+  --scrollbar-thumb:  linear-gradient(180deg, #2d5a1b, #39ff14);
+}
+
+:root[data-theme="light"] {
+  /* backgrounds */
+  --jungle-bg:        #f0f4f0;
+  --jungle-surface:   #e0e8e0;
+  --jungle-panel:     #d8e0d8;
+  --jungle-card:      #c8d0c8;
+  --bg-body:          #e8f0e4;
+  --bg-surface:       #d4e6cc;
+  --bg-panel:         #c8dfc0;
+  --bg-card:          #bdd8b5;
+  --bg-board:         radial-gradient(ellipse at center, #c8dfc0 0%, #a8c89a 100%);
+  --board-border:     rgba(100,70,20,0.4);
+  --board-shadow:     0 0 40px rgba(0,0,0,0.15), 0 8px 32px rgba(0,0,0,0.2);
+  --board-grid-line:  rgba(80,120,40,0.08);
+
+  /* stone tile */
+  --tile-face:        #f5f0e1;
+  --tile-face-dark:   #e1d7c0;
+  --tile-edge-right:  linear-gradient(135deg, #8b6914, #6b4f0e);
+  --tile-edge-bottom: linear-gradient(135deg, #6b4f0e, #4a3508);
+
+  /* tile states */
+  --tile-free-bg:     linear-gradient(145deg, #fdf6e3, #f5e6c0);
+  --tile-free-border: #c8841a;
+  --tile-free-shadow: 0 3px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+  --tile-free-top-highlight: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%);
+  
+  --tile-blocked-bg:  linear-gradient(145deg, #8fa882, #7a9470);
+  --tile-blocked-border: #5a7a4a;
+  --tile-blocked-overlay: rgba(60,80,40,0.45);
+  
+  --tile-hover-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 0 12px rgba(200,130,30,0.4);
+  
+  /* symbols & runes */
+  --symbol-filter-blocked: grayscale(60%) brightness(0.7);
+  --tile-rune-dot:    rgba(180,120,20,0.6);
+
+  /* UI elements */
+  --header-bg:        linear-gradient(180deg, #2d5a1b 0%, #1e3d10 100%);
+  --header-border:    rgba(212,168,67,0.4);
+  --header-shadow:    0 2px 16px rgba(0,0,0,0.3);
+  
+  --title-color:      #ffd700;
+  --title-glow:       0 0 16px rgba(255,215,0,0.6);
+  
+  --timer-color:      #00ffaa;
+  --timer-glow:       0 0 8px rgba(0,255,170,0.4);
+  
+  --pairs-color:      #ffcc44;
+  
+  --hint-btn-bg:      linear-gradient(135deg, #1a4a0a, #0e2d06);
+  --hint-btn-border:  #7fff00;
+  --hint-btn-color:   #7fff00;
+  
+  --playercard-bg:    linear-gradient(135deg, rgba(200,220,180,0.95), rgba(180,210,160,0.95));
+  --score-font-color: #1a3a0a;
+  --player-name-active: #1b5e20;
+  --player-name-inactive: #4a5568;
+  --player-label: #718096;
+  
+  --text-primary: #1a3a0a;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --border-primary: #e2e8f0;
+  --bg-overlay: rgba(255,255,255,0.4);
+  
+  --chart-bg: #f8fafc;
+  --chart-border: #e2e8f0;
+  --chart-grid: #e2e8f0;
+  --chart-text: #64748b;
+  
+  --toast-bg:         linear-gradient(135deg, #f5f0e1, #e1d7c0);
+  --toast-border:     #b0a080;
+  --toast-color:      #5d4037;
+  
+  --board-bg:         #e8f0e4;
+  --board-wrapper-bg: rgba(255,255,255,0.5);
+  --board-border:     rgba(46,125,50,0.1);
+  --board-shadow:     0 0 30px rgba(0,0,0,0.05);
+
+  /* accents */
+  --jungle-green:     #2e7d32;
+  --glow-green:       0 0 12px #7fff00, 0 0 28px rgba(127,255,0,0.3);
+  --glow-gold:        0 0 12px #ffd700, 0 0 28px rgba(255,215,0,0.3);
+  --glow-cyan:        0 0 12px #00ffaa, 0 0 28px rgba(0,255,170,0.3);
+  --glow-purple:      0 0 12px #bf5fff, 0 0 28px rgba(191,95,255,0.3);
+
+  --firefly-opacity:  0;
+
+  --scrollbar-track:  #c8dfc0;
+  --scrollbar-thumb:  linear-gradient(180deg, #4a8a2a, #7fff00);
+}
+
+*, *::before, *::after {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease,
+    filter 0.35s ease;
+}
+
+/* Exclude animation-heavy elements from global transition */
+.tile, .tile *, .firefly, .match-burst, .particle {
+  transition: transform 0.4s ease !important;
 }
 
 @theme {
@@ -52,14 +215,11 @@
 
 @layer base {
   body {
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(0,80,20,0.15) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(0,60,40,0.12) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 80%, rgba(20,0,60,0.1) 0%, transparent 50%),
-      linear-gradient(160deg, #050e08 0%, #0a1a0d 50%, #060a10 100%);
+    background: var(--bg-body);
     min-height: 100vh;
     @apply text-slate-200 overflow-hidden;
     font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+    transition: background 0.4s ease;
   }
 
   /* Generate 12 pseudo-firefly dots via box-shadow on a single ::before */
@@ -68,7 +228,7 @@
     position: fixed;
     width: 4px; height: 4px;
     border-radius: 50%;
-    background: #39ff14;
+    background: var(--jungle-green);
     box-shadow:
       120px 200px 8px 1px rgba(57,255,20,0.6),
       340px 80px  6px 1px rgba(0,255,204,0.5),
@@ -85,6 +245,8 @@
     animation: fireflies 8s ease-in-out infinite alternate;
     pointer-events: none;
     z-index: 0;
+    opacity: var(--firefly-opacity);
+    transition: opacity 0.4s ease;
   }
 }
 
@@ -114,8 +276,8 @@
 }
 
 @keyframes hintPulse {
-  0% { box-shadow: 0 0 10px #39ff14; }
-  100% { box-shadow: 0 0 24px #39ff14, 0 0 48px rgba(57,255,20,0.3); }
+  0% { box-shadow: 0 0 10px var(--jungle-green); }
+  100% { box-shadow: 0 0 24px var(--jungle-green), 0 0 48px rgba(57,255,20,0.3); }
 }
 
 @keyframes spinSlow {
@@ -155,27 +317,14 @@
 
 .board-wrapper {
   background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 40px,
-      rgba(45,90,27,0.04) 40px,
-      rgba(45,90,27,0.04) 41px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 40px,
-      rgba(45,90,27,0.04) 40px,
-      rgba(45,90,27,0.04) 41px
-    ),
-    radial-gradient(ellipse at center, #0f2d14 0%, #060e08 100%);
-  border: 2px solid rgba(212,168,67,0.3);
+    repeating-linear-gradient(0deg, transparent, transparent 40px,
+      var(--board-grid-line) 40px, var(--board-grid-line) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px,
+      var(--board-grid-line) 40px, var(--board-grid-line) 41px),
+    var(--bg-board);
+  border: 2px solid var(--board-border);
   border-radius: 16px;
-  box-shadow:
-    0 0 40px rgba(57,255,20,0.08),
-    0 0 80px rgba(0,0,0,0.8),
-    inset 0 0 60px rgba(0,0,0,0.5);
+  box-shadow: var(--board-shadow);
   padding: 24px;
   position: relative;
 }
@@ -198,11 +347,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--jungle-bg);
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--jungle-vine), var(--jungle-green));
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 

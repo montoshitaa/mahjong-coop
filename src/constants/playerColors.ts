@@ -1,52 +1,29 @@
 export const PLAYER_COLORS = [
   {
     id: 0,
-    name: 'blue',
-    primary:    '#4fc3f7',
-    secondary:  '#1a3a5c',
-    glow:       '0 0 12px #4fc3f7, 0 0 24px #1e88e5',
-    particle:   '#4fc3f7',
-    border:     '#1e88e5',
-    text:       '#e3f2fd',
-    dim:        'rgba(79, 195, 247, 0.15)',
+    dark:  { primary: '#4fc3f7', secondary: '#1a3a5c', glow: '0 0 12px #4fc3f7', particle: '#4fc3f7' },
+    light: { primary: '#0277bd', secondary: '#e1f5fe', glow: '0 0 12px #0277bd', particle: '#0277bd' },
   },
   {
     id: 1,
-    name: 'red',
-    primary:    '#ef5350',
-    secondary:  '#4a1010',
-    glow:       '0 0 12px #ef5350, 0 0 24px #c62828',
-    particle:   '#ef5350',
-    border:     '#c62828',
-    text:       '#ffebee',
-    dim:        'rgba(239, 83, 80, 0.15)',
+    dark:  { primary: '#ef5350', secondary: '#4a1010', glow: '0 0 12px #ef5350', particle: '#ef5350' },
+    light: { primary: '#c62828', secondary: '#ffebee', glow: '0 0 12px #c62828', particle: '#c62828' },
   },
   {
     id: 2,
-    name: 'green',
-    primary:    '#66bb6a',
-    secondary:  '#0a2e0a',
-    glow:       '0 0 12px #66bb6a, 0 0 24px #2e7d32',
-    particle:   '#66bb6a',
-    border:     '#2e7d32',
-    text:       '#e8f5e9',
-    dim:        'rgba(102, 187, 106, 0.15)',
+    dark:  { primary: '#66bb6a', secondary: '#0a2e0a', glow: '0 0 12px #66bb6a', particle: '#66bb6a' },
+    light: { primary: '#2e7d32', secondary: '#e8f5e9', glow: '0 0 12px #2e7d32', particle: '#2e7d32' },
   },
   {
     id: 3,
-    name: 'purple',
-    primary:    '#ce93d8',
-    secondary:  '#2a0a3a',
-    glow:       '0 0 12px #ce93d8, 0 0 24px #7b1fa2',
-    particle:   '#ce93d8',
-    border:     '#7b1fa2',
-    text:       '#f3e5f5',
-    dim:        'rgba(206, 147, 216, 0.15)',
+    dark:  { primary: '#ce93d8', secondary: '#2a0a3a', glow: '0 0 12px #ce93d8', particle: '#ce93d8' },
+    light: { primary: '#7b1fa2', secondary: '#f3e5f5', glow: '0 0 12px #7b1fa2', particle: '#7b1fa2' },
   },
 ];
 
-export function getPlayerColor(index: number) {
-  return PLAYER_COLORS[index % PLAYER_COLORS.length];
+export function getPlayerColor(index: number, theme: 'dark' | 'light' = 'dark') {
+  const entry = PLAYER_COLORS[index % PLAYER_COLORS.length];
+  return entry[theme];
 }
 
-export type PlayerColor = typeof PLAYER_COLORS[0];
+export type PlayerColor = ReturnType<typeof getPlayerColor>;

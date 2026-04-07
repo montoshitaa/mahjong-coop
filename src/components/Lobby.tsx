@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, Users, Play } from 'lucide-react';
+import { Sparkles, Users, Play, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext.tsx';
 
 interface LobbyProps {
   joinGame: (name: string) => void;
@@ -9,6 +10,7 @@ interface LobbyProps {
 
 const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
   const [name, setName] = useState('');
+  const { theme, toggleTheme } = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,21 +23,30 @@ const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-md w-full bg-[#0d0d1a] border border-slate-800 rounded-3xl p-8 shadow-[0_0_50px_rgba(57,255,20,0.1)]"
+      className="max-w-md w-full bg-[var(--bg-panel)] border border-[var(--header-border)] rounded-3xl p-8 shadow-[var(--board-shadow)] relative"
     >
+      {/* Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="absolute top-6 right-6 p-2 rounded-xl border border-[var(--header-border)] hover:scale-105 active:scale-95 transition-all"
+        style={{ color: 'var(--title-color)' }}
+      >
+        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-[#39ff14]/10 rounded-2xl mb-4 border border-[#39ff14]/20">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--jungle-green)]/10 rounded-2xl mb-4 border border-[var(--jungle-green)]/20">
           <span className="text-4xl">🀄</span>
         </div>
-        <h1 className="text-3xl font-black tracking-tighter text-white mb-2 uppercase">
-          Mahjong <span className="text-[#39ff14]">Solitaire</span>
+        <h1 className="text-3xl font-black tracking-tighter mb-2 uppercase" style={{ color: 'var(--title-color)', textShadow: 'var(--title-glow)' }}>
+          Mahjong <span style={{ color: 'var(--jungle-green)' }}>Jungle</span>
         </h1>
-        <p className="text-slate-400 text-sm font-medium">Multiplayer Battle Arena</p>
+        <p className="text-[var(--text-secondary)] text-sm font-medium">Multiplayer Battle Arena</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 ml-1">
+          <label htmlFor="name" className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2 ml-1">
             Enter Player Name
           </label>
           <input
@@ -45,7 +56,7 @@ const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. MasterMahjong"
             maxLength={15}
-            className="w-full bg-black/40 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-[#39ff14]/50 focus:ring-1 focus:ring-[#39ff14]/20 transition-all"
+            className="w-full bg-[var(--jungle-surface)]/40 border border-[var(--header-border)] rounded-xl px-4 py-3 text-[var(--title-color)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--jungle-green)]/50 focus:ring-1 focus:ring-[var(--jungle-green)]/20 transition-all"
             autoFocus
           />
         </div>
@@ -55,7 +66,7 @@ const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
           disabled={!name.trim() || !isConnected}
           className={`w-full group relative flex items-center justify-center gap-3 py-4 rounded-xl font-black transition-all overflow-hidden ${
             name.trim() && isConnected 
-              ? 'bg-[#39ff14] text-black hover:scale-[1.02] active:scale-[0.98]' 
+              ? 'bg-[var(--jungle-green)] text-black hover:scale-[1.02] active:scale-[0.98]' 
               : 'bg-slate-800 text-slate-500 cursor-not-allowed'
           }`}
         >
@@ -67,9 +78,9 @@ const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
         </button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-slate-800/50">
+      <div className="mt-8 pt-6 border-t border-[var(--header-border)]/50">
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
-          <div className="flex items-center gap-2 text-slate-500">
+          <div className="flex items-center gap-2 text-[var(--text-muted)]">
             <Users className="w-3 h-3" />
             <span>Up to 4 Players</span>
           </div>
@@ -83,13 +94,13 @@ const Lobby: React.FC<LobbyProps> = ({ joinGame, isConnected }) => {
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="bg-black/20 rounded-lg p-3 border border-slate-800/30">
-          <div className="text-[9px] font-bold text-slate-500 uppercase mb-1">Objective</div>
-          <div className="text-[11px] text-slate-300 leading-tight">Match pairs of free tiles to score points.</div>
+        <div className="bg-[var(--bg-overlay)] rounded-lg p-3 border border-[var(--header-border)]/30">
+          <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase mb-1">Objective</div>
+          <div className="text-[11px] text-[var(--text-secondary)] leading-tight">Match pairs of free tiles to score points.</div>
         </div>
-        <div className="bg-black/20 rounded-lg p-3 border border-slate-800/30">
-          <div className="text-[9px] font-bold text-slate-500 uppercase mb-1">Free Tiles</div>
-          <div className="text-[11px] text-slate-300 leading-tight">Tiles with no tile on top and at least one side open.</div>
+        <div className="bg-[var(--bg-overlay)] rounded-lg p-3 border border-[var(--header-border)]/30">
+          <div className="text-[9px] font-bold text-[var(--text-muted)] uppercase mb-1">Free Tiles</div>
+          <div className="text-[11px] text-[var(--text-secondary)] leading-tight">Tiles with no tile on top and at least one side open.</div>
         </div>
       </div>
     </motion.div>

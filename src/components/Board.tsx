@@ -19,7 +19,6 @@ interface BoardProps {
   tiles: TileType[];
   currentPlayerId: string | null;
   onSelectTile: (id: string) => void;
-  highlightFree: boolean;
   playerColorMap: Record<string, PlayerColor>;
   hintPair: [string, string] | null;
 }
@@ -31,7 +30,7 @@ interface Burst {
   color: string;
 }
 
-const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, onSelectTile, highlightFree, playerColorMap, hintPair }) => {
+const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, onSelectTile, playerColorMap, hintPair }) => {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const prevTilesRef = useRef<TileType[]>([]);
 
@@ -125,7 +124,6 @@ const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, onSelectTile, hig
                 tile={tile} 
                 currentPlayerId={currentPlayerId} 
                 onSelect={onSelectTile}
-                highlightFree={highlightFree}
                 playerColorMap={playerColorMap}
                 isHinted={isHinted}
               />

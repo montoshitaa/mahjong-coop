@@ -42,7 +42,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           : 'opacity-55 brightness-[0.75]'}
       `}
       style={{
-        background: 'linear-gradient(135deg, rgba(13,31,10,0.95), rgba(6,10,8,0.95))',
+        background: 'var(--playercard-bg)',
         borderLeftColor: color.primary,
         boxShadow: isCurrentTurn ? `${color.primary}99 0 0 12px` : `${color.primary}33 0 0 8px`,
       }}
@@ -73,16 +73,16 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <span className={`font-bold truncate ${isCurrentPlayer ? 'text-[#39ff14]' : 'text-slate-300'}`}>
+          <span className="font-bold truncate" style={{ color: isCurrentPlayer ? 'var(--player-name-active)' : 'var(--player-name-inactive)' }}>
             {player.name}
           </span>
           {isCurrentPlayer && (
-            <span className="text-[10px] text-slate-500 font-bold uppercase">@you</span>
+            <span className="text-[10px] font-bold uppercase" style={{ color: 'var(--player-label)' }}>@you</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {getMedal(rank) && <span className="text-sm">{getMedal(rank)}</span>}
-          <span className="text-xs text-slate-500 font-mono">Rank {rank}</span>
+          <span className="text-xs font-mono" style={{ color: 'var(--player-label)' }}>Rank {rank}</span>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         <div 
           className="text-3xl font-black font-mono tracking-tighter"
           style={{ 
-            color: color.primary,
+            color: 'var(--score-font-color)',
             textShadow: `0 0 8px ${color.primary}`
           }}
         >

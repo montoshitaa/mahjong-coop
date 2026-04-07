@@ -49,37 +49,45 @@ const LiveChart: React.FC<LiveChartProps> = ({ scoreHistory, players }) => {
 
   if (scoreHistory.length < 2) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-[#12122a] rounded-xl border border-slate-800 text-slate-500 italic text-xs">
+      <div className="w-full h-full flex items-center justify-center rounded-xl border italic text-xs"
+           style={{ backgroundColor: 'var(--chart-bg)', borderColor: 'var(--chart-border)', color: 'var(--chart-text)' }}>
         Waiting for score updates...
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full bg-[#12122a] rounded-xl border border-slate-800 p-3 shadow-2xl flex flex-col">
+    <div className="w-full h-full rounded-xl border p-3 shadow-2xl flex flex-col"
+         style={{ backgroundColor: 'var(--chart-bg)', borderColor: 'var(--chart-border)' }}>
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Score Progression</h2>
+        <h2 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--chart-text)' }}>Score Progression</h2>
       </div>
       <div className="flex-1 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" vertical={false} />
             <XAxis 
               dataKey="time" 
-              stroke="#475569" 
+              stroke="var(--chart-text)" 
               fontSize={10} 
               tickLine={false} 
               axisLine={false}
             />
             <YAxis 
-              stroke="#475569" 
+              stroke="var(--chart-text)" 
               fontSize={10} 
               tickLine={false} 
               axisLine={false}
               allowDecimals={false}
             />
             <Tooltip 
-              contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '4px', color: '#f8fafc', fontSize: '10px' }}
+              contentStyle={{ 
+                backgroundColor: 'var(--chart-bg)', 
+                border: '1px solid var(--chart-border)', 
+                borderRadius: '4px', 
+                color: 'var(--chart-text)', 
+                fontSize: '10px' 
+              }}
               itemStyle={{ padding: '0px' }}
             />
             {players.map((player, index) => (

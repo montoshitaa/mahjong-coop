@@ -8,12 +8,11 @@ interface TileProps {
   tile: TileType;
   currentPlayerId: string | null;
   onSelect: (id: string) => void;
-  highlightFree: boolean;
   playerColorMap: Record<string, PlayerColor>;
   isHinted?: boolean;
 }
 
-const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect, highlightFree, playerColorMap, isHinted }) => {
+const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect, playerColorMap, isHinted }) => {
   const { id, symbol, isMatched, lockedBy, isFree } = tile;
   const [showPlusOne, setShowPlusOne] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -37,18 +36,18 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
   };
 
   // Determine styling based on state
-  let faceBackground = 'linear-gradient(145deg, #d4c4a0, #c8b080)';
-  let faceBorder = '1.5px solid #d4a843';
-  let faceShadow = '0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)';
+  let faceBackground = 'var(--tile-free-bg)';
+  let faceBorder = '1.5px solid var(--tile-free-border)';
+  let faceShadow = 'var(--tile-free-shadow)';
   const clickable = isFree && !lockedBy;
 
   if (isBlocked) {
-    faceBackground = 'linear-gradient(145deg, #1e2e1a, #151f11)';
-    faceBorder = '1px solid #2d4a2d';
+    faceBackground = 'var(--tile-blocked-bg)';
+    faceBorder = '1px solid var(--tile-blocked-border)';
     faceShadow = 'none';
   } else if (isHinted && isFree && !isMatched) {
-    faceBackground = 'linear-gradient(145deg, #0d2e0d, #0a1f0a)';
-    faceBorder = '2px solid #39ff14';
+    faceBackground = 'var(--hint-btn-bg)';
+    faceBorder = '2px solid var(--hint-btn-border)';
     faceShadow = 'var(--glow-green)';
   } else if (isLockedByMe) {
     const color = playerColorMap[currentPlayerId || ''];
@@ -65,7 +64,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
       faceShadow = `0 0 8px ${color.primary}`;
     }
   } else if (isHovered && isFree) {
-    faceShadow = '0 4px 16px rgba(0,0,0,0.6), 0 0 8px rgba(212,168,67,0.3)';
+    faceShadow = 'var(--tile-hover-shadow)';
   }
 
   return (
@@ -87,7 +86,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
           bottom: 0, left: 4,
           width: TILE_W,
           height: TILE_H,
-          background: 'linear-gradient(135deg, #2a1f0e, #1a1208)',
+          background: 'var(--tile-edge-bottom)',
           borderRadius: '7px',
           zIndex: 1,
         }} />
@@ -100,7 +99,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
           top: 4, right: 0,
           width: TILE_W,
           height: TILE_H,
-          background: 'linear-gradient(135deg, #4a3520, #2a1f0e)',
+          background: 'var(--tile-edge-right)',
           borderRadius: '7px',
           zIndex: 2,
         }} />
@@ -147,9 +146,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
           position: 'absolute',
           top: 0, left: 0, right: 0,
           height: '35%',
-          background: isFree
-            ? 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%)'
-            : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
+          background: 'var(--tile-free-top-highlight)',
           borderRadius: '6px 6px 0 0',
           pointerEvents: 'none',
           zIndex: 2,
@@ -161,7 +158,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
           lineHeight: 1,
           zIndex: 3,
           position: 'relative',
-          filter: isBlocked ? 'grayscale(90%) brightness(0.5)' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+          filter: isBlocked ? 'var(--symbol-filter-blocked)' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))',
           opacity: isMatched ? 0 : (isBlocked ? 0.4 : 1),
           transition: 'opacity 0.2s, filter 0.2s',
           fontFamily: "'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif",
@@ -177,7 +174,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
                 position: 'absolute',
                 width: 4, height: 4,
                 borderRadius: '50%',
-                background: 'rgba(212,168,67,0.5)',
+                background: 'var(--tile-rune-dot)',
                 ...(pos === 'topleft'     ? { top: 4, left: 4 }       : {}),
                 ...(pos === 'topright'    ? { top: 4, right: 4 }      : {}),
                 ...(pos === 'bottomleft'  ? { bottom: 4, left: 4 }    : {}),
@@ -192,7 +189,7 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
         {isBlocked && (
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'rgba(0,0,0,0.55)',
+            background: 'var(--tile-blocked-overlay)',
             borderRadius: '6px',
             backdropFilter: 'blur(0.5px)',
             zIndex: 5,

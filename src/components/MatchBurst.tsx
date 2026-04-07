@@ -39,7 +39,7 @@ const MatchBurst: React.FC<MatchBurstProps> = ({ x, y, color, onComplete }) => {
           left: '50%',
           top: '50%',
           fontSize: isCardinal ? '14px' : '12px',
-          textShadow: `0 0 8px ${color}, 0 0 4px #39ff14`,
+          textShadow: `0 0 8px ${color}, 0 0 4px var(--jungle-green)`,
           '--dx': `${dx}px`,
           '--dy': `${dy}px`,
           animation: 'jungleBurst 0.6s ease-out forwards',
