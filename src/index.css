@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+:root {
+  /* backgrounds */
+  --jungle-bg:        #050e08;
+  --jungle-surface:   #0a1f0f;
+  --jungle-panel:     #0d1f12;
+  --jungle-card:      #112b16;
+
+  /* stone tile */
+  --tile-face:        #c8b99a;   /* aged parchment / sandstone */
+  --tile-face-dark:   #a89880;   /* darker sandstone for depth */
+  --tile-edge-right:  #6b5a3e;   /* dark stone right edge */
+  --tile-edge-bottom: #4a3d28;   /* darker stone bottom edge */
+  --tile-border:      #d4a843;   /* golden rune border */
+
+  /* blocked tile */
+  --tile-blocked:     #1e2e1e;   /* dark moss */
+  --tile-blocked-border: #2d4a2d;
+
+  /* accents */
+  --jungle-green:     #39ff14;   /* bioluminescent green */
+  --jungle-cyan:      #00ffcc;   /* magical cyan */
+  --jungle-gold:      #ffd700;   /* temple gold */
+  --jungle-amber:     #ff8c00;   /* torchlight */
+  --jungle-purple:    #bf5fff;   /* mystic purple */
+  --jungle-vine:      #2d5a1b;   /* dark vine green */
+
+  /* glow effects */
+  --glow-green:  0 0 12px #39ff14, 0 0 28px rgba(57,255,20,0.3);
+  --glow-gold:   0 0 12px #ffd700, 0 0 28px rgba(255,215,0,0.3);
+  --glow-cyan:   0 0 12px #00ffcc, 0 0 28px rgba(0,255,204,0.3);
+  --glow-purple: 0 0 12px #bf5fff, 0 0 28px rgba(191,95,255,0.3);
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
@@ -19,9 +52,48 @@
 
 @layer base {
   body {
-    @apply bg-[#0a0a1a] text-slate-200 overflow-hidden;
-    font-family: var(--font-sans);
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,80,20,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,60,40,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(20,0,60,0.1) 0%, transparent 50%),
+      linear-gradient(160deg, #050e08 0%, #0a1a0d 50%, #060a10 100%);
+    min-height: 100vh;
+    @apply text-slate-200 overflow-hidden;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
   }
+
+  /* Generate 12 pseudo-firefly dots via box-shadow on a single ::before */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #39ff14;
+    box-shadow:
+      120px 200px 8px 1px rgba(57,255,20,0.6),
+      340px 80px  6px 1px rgba(0,255,204,0.5),
+      580px 310px 8px 2px rgba(57,255,20,0.4),
+      780px 140px 5px 1px rgba(191,95,255,0.5),
+      200px 450px 7px 1px rgba(0,255,204,0.3),
+      650px 420px 6px 2px rgba(57,255,20,0.5),
+      420px 520px 8px 1px rgba(255,215,0,0.4),
+      900px 280px 5px 1px rgba(57,255,20,0.3),
+      50px  380px 7px 2px rgba(191,95,255,0.4),
+      750px 490px 6px 1px rgba(0,255,204,0.5),
+      310px 160px 8px 1px rgba(255,215,0,0.3),
+      860px 360px 5px 2px rgba(57,255,20,0.4);
+    animation: fireflies 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@keyframes fireflies {
+  0%   { transform: translate(0px, 0px);   opacity: 0.6; }
+  25%  { transform: translate(8px, -12px); opacity: 1;   }
+  50%  { transform: translate(-6px, 8px);  opacity: 0.7; }
+  75%  { transform: translate(10px, 4px);  opacity: 0.9; }
+  100% { transform: translate(-4px, -8px); opacity: 0.6; }
 }
 
 @keyframes tileMatch {
@@ -51,6 +123,16 @@
   to { transform: rotate(360deg); }
 }
 
+@keyframes ringBurst {
+  0%   { transform: scale(0.3); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes vineWiggle {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
 .animate-tile-match {
   animation: tileMatch 0.3s forwards;
 }
@@ -71,20 +153,59 @@
   animation: spinSlow 3s linear infinite;
 }
 
+.board-wrapper {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(45,90,27,0.04) 40px,
+      rgba(45,90,27,0.04) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(45,90,27,0.04) 40px,
+      rgba(45,90,27,0.04) 41px
+    ),
+    radial-gradient(ellipse at center, #0f2d14 0%, #060e08 100%);
+  border: 2px solid rgba(212,168,67,0.3);
+  border-radius: 16px;
+  box-shadow:
+    0 0 40px rgba(57,255,20,0.08),
+    0 0 80px rgba(0,0,0,0.8),
+    inset 0 0 60px rgba(0,0,0,0.5);
+  padding: 24px;
+  position: relative;
+}
+
+.board-wrapper::before,
+.board-wrapper::after {
+  content: '🌿';
+  position: absolute;
+  font-size: 32px;
+  opacity: 0.4;
+  filter: hue-rotate(20deg);
+}
+.board-wrapper::before { top: 8px; left: 12px; }
+.board-wrapper::after  { bottom: 8px; right: 12px; transform: rotate(180deg); }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a1a;
+  background: var(--jungle-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a1a2e;
+  background: linear-gradient(180deg, var(--jungle-vine), var(--jungle-green));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a2a3e;
+  background: var(--jungle-green);
 }

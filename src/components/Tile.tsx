@@ -16,9 +16,11 @@ interface TileProps {
 const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect, highlightFree, playerColorMap, isHinted }) => {
   const { id, symbol, isMatched, lockedBy, isFree } = tile;
   const [showPlusOne, setShowPlusOne] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isLockedByMe = lockedBy === currentPlayerId;
   const isLockedByOther = lockedBy !== null && !isLockedByMe;
+  const isBlocked = !isFree && !isMatched;
 
   useEffect(() => {
     if (isMatched) {
@@ -35,110 +37,180 @@ const Tile: React.FC<TileProps> = React.memo(({ tile, currentPlayerId, onSelect,
   };
 
   // Determine styling based on state
-  let background = isFree ? '#f5f0e8' : '#2a2a3e';
-  let borderStyle = isFree ? '2px solid #c8a96e' : '1px solid #3a3a4e';
-  let shadowStyle = isFree ? '3px 3px 0px #1a1a2e, 4px 4px 0px #0d0d1a' : '1px 1px 0px #0d0d1a';
-  let cursor = isFree && !lockedBy ? 'pointer' : (isLockedByOther ? 'not-allowed' : 'default');
+  let faceBackground = 'linear-gradient(145deg, #d4c4a0, #c8b080)';
+  let faceBorder = '1.5px solid #d4a843';
+  let faceShadow = '0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)';
+  const clickable = isFree && !lockedBy;
 
-  if (isHinted && isFree && !isMatched) {
-    background = '#0a2e0a';
-    borderStyle = '2px solid #39ff14';
-    shadowStyle = '0 0 16px #39ff14, 0 0 32px rgba(57,255,20,0.4)';
+  if (isBlocked) {
+    faceBackground = 'linear-gradient(145deg, #1e2e1a, #151f11)';
+    faceBorder = '1px solid #2d4a2d';
+    faceShadow = 'none';
+  } else if (isHinted && isFree && !isMatched) {
+    faceBackground = 'linear-gradient(145deg, #0d2e0d, #0a1f0a)';
+    faceBorder = '2px solid #39ff14';
+    faceShadow = 'var(--glow-green)';
   } else if (isLockedByMe) {
     const color = playerColorMap[currentPlayerId || ''];
     if (color) {
-      background = color.secondary;
-      borderStyle = `2px solid ${color.primary}`;
-      shadowStyle = color.glow;
+      faceBackground = `linear-gradient(145deg, ${color.secondary}, #0a1a1a)`;
+      faceBorder = `2px solid ${color.primary}`;
+      faceShadow = color.glow;
     }
   } else if (isLockedByOther) {
     const color = playerColorMap[lockedBy || ''];
     if (color) {
-      background = color.secondary;
-      borderStyle = `2px solid ${color.primary}B3`; // 70% opacity
-      shadowStyle = `0 0 8px ${color.primary}`;
+      faceBackground = `linear-gradient(145deg, ${color.secondary}, #1a0a0a)`;
+      faceBorder = `2px solid ${color.primary}99`;
+      faceShadow = `0 0 8px ${color.primary}`;
     }
+  } else if (isHovered && isFree) {
+    faceShadow = '0 4px 16px rgba(0,0,0,0.6), 0 0 8px rgba(212,168,67,0.3)';
   }
 
   return (
     <div 
       style={{
-        width: TILE_W,
-        height: TILE_H,
+        width: TILE_W + 8,
+        height: TILE_H + 8,
         overflow: 'visible',
         position: 'absolute',
-        cursor,
       }}
       onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 3D shadow layers */}
-      <div style={{   // right edge shadow
-        position: 'absolute',
-        top: 3, left: TILE_W,
-        width: 6, height: TILE_H,
-        background: '#1a1a2e',
-        borderRadius: '0 4px 4px 0',
-        display: isMatched ? 'none' : 'block',
-      }} />
-      <div style={{   // bottom edge shadow
-        position: 'absolute',
-        top: TILE_H, left: 3,
-        width: TILE_W, height: 6,
-        background: '#0d0d1a',
-        borderRadius: '0 0 4px 4px',
-        display: isMatched ? 'none' : 'block',
-      }} />
+      {/* Bottom edge — darkest stone */}
+      {!isMatched && (
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 4,
+          width: TILE_W,
+          height: TILE_H,
+          background: 'linear-gradient(135deg, #2a1f0e, #1a1208)',
+          borderRadius: '7px',
+          zIndex: 1,
+        }} />
+      )}
 
-      {/* tile face */}
+      {/* Right edge — dark stone */}
+      {!isMatched && (
+        <div style={{
+          position: 'absolute',
+          top: 4, right: 0,
+          width: TILE_W,
+          height: TILE_H,
+          background: 'linear-gradient(135deg, #4a3520, #2a1f0e)',
+          borderRadius: '7px',
+          zIndex: 2,
+        }} />
+      )}
+
+      {/* Main face */}
       <div 
         className={`${isLockedByMe ? "animate-pulse-selected" : ""} ${isHinted && isFree && !isMatched ? "animate-hint-pulse" : ""}`}
         style={{
           position: 'absolute',
           top: 0, left: 0,
-          width: TILE_W, height: TILE_H,
-          borderRadius: 6,
+          width: TILE_W,
+          height: TILE_H,
+          borderRadius: '6px',
+          background: faceBackground,
+          border: faceBorder,
+          boxShadow: faceShadow,
+          zIndex: 3,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 30,
-          background,
-          border: borderStyle,
-          boxShadow: shadowStyle,
-          zIndex: 1,
+          flexDirection: 'column',
+          cursor: clickable ? 'pointer' : 'not-allowed',
+          transition: 'transform 0.12s ease, box-shadow 0.12s ease, filter 0.2s ease',
+          transform: isHovered && isFree && !isMatched ? 'translateY(-3px) translateX(-1px)' : 'none',
+          overflow: 'hidden',
           opacity: isMatched ? 0 : 1,
-          transition: 'all 0.15s ease',
-          borderTop: highlightFree && isFree && !lockedBy && !isHinted ? "2px solid rgba(255, 255, 255, 0.6)" : borderStyle,
         }}
       >
-        {/* symbol — ALWAYS render, never conditional */}
-        <span style={{
-          opacity: isMatched ? 0 : (isFree || lockedBy ? 1 : 0.38),
-          filter: isFree || lockedBy ? 'none' : 'grayscale(85%)',
-          fontFamily: "'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif",
-          fontSize: 26,
-          lineHeight: '1',
-          display: 'block',
-          textAlign: 'center',
+        {/* Stone texture overlay — subtle noise pattern */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `
+            radial-gradient(circle at 30% 30%, rgba(255,255,255,0.06) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, rgba(0,0,0,0.1) 0%, transparent 50%)
+          `,
+          borderRadius: '6px',
           pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+
+        {/* Top highlight — light hitting stone surface */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: '35%',
+          background: isFree
+            ? 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
+          borderRadius: '6px 6px 0 0',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }} />
+
+        {/* Symbol */}
+        <span style={{
+          fontSize: 26,
+          lineHeight: 1,
+          zIndex: 3,
+          position: 'relative',
+          filter: isBlocked ? 'grayscale(90%) brightness(0.5)' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+          opacity: isMatched ? 0 : (isBlocked ? 0.4 : 1),
+          transition: 'opacity 0.2s, filter 0.2s',
+          fontFamily: "'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif",
         }}>
-          {symbol}
+          {tile.symbol}
         </span>
 
-        {/* blocked overlay */}
-        {!isFree && !isMatched && !lockedBy && (
+        {/* Rune corner marks — tiny decorative dots on free tiles */}
+        {isFree && !isMatched && (
+          <>
+            {['topleft','topright','bottomleft','bottomright'].map(pos => (
+              <div key={pos} style={{
+                position: 'absolute',
+                width: 4, height: 4,
+                borderRadius: '50%',
+                background: 'rgba(212,168,67,0.5)',
+                ...(pos === 'topleft'     ? { top: 4, left: 4 }       : {}),
+                ...(pos === 'topright'    ? { top: 4, right: 4 }      : {}),
+                ...(pos === 'bottomleft'  ? { bottom: 4, left: 4 }    : {}),
+                ...(pos === 'bottomright' ? { bottom: 4, right: 4 }   : {}),
+                zIndex: 4,
+              }} />
+            ))}
+          </>
+        )}
+
+        {/* Blocked overlay — dark moss/shadow */}
+        {isBlocked && (
           <div style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 6,
-            background: 'rgba(0,0,0,0.42)',
-            pointerEvents: 'none',
+            position: 'absolute', inset: 0,
+            background: 'rgba(0,0,0,0.55)',
+            borderRadius: '6px',
+            backdropFilter: 'blur(0.5px)',
+            zIndex: 5,
           }} />
         )}
 
         {/* Plus One Animation */}
         <AnimatePresence>
           {showPlusOne && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}>
               <span className="text-green-400 font-bold text-xl animate-float-up">+1</span>
             </div>
           )}

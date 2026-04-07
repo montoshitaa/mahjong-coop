@@ -93,6 +93,7 @@ const Board: React.FC<BoardProps> = ({ tiles, currentPlayerId, onSelectTile, hig
       }}
     >
       <div 
+        className="board-wrapper"
         style={{
           position: 'relative',
           width: boardDimensions.width,

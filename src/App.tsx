@@ -119,11 +119,26 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col bg-[#0a0a1a] text-slate-200 overflow-hidden font-sans">
       {/* Header */}
-      <header className="h-12 flex-shrink-0 bg-[#0d0d1a] border-b border-slate-800 px-6 flex items-center justify-between z-40">
+      <header 
+        className="h-12 flex-shrink-0 px-6 flex items-center justify-between z-40"
+        style={{
+          background: 'linear-gradient(180deg, #0d1f0a 0%, #0a1508 100%)',
+          borderBottom: '1px solid rgba(212,168,67,0.2)',
+          boxShadow: '0 2px 20px rgba(0,0,0,0.5)',
+        }}
+      >
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-black tracking-tighter text-[#39ff14] flex items-center gap-2">
-            <span className="text-2xl">麻将</span>
-            MAHJONG
+          <h1 
+            className="text-lg font-black tracking-[4px] flex items-center gap-2"
+            style={{ 
+              color: '#d4a843',
+              textShadow: '0 0 20px rgba(212,168,67,0.5)',
+              fontVariant: 'small-caps'
+            }}
+          >
+            <span className="text-2xl">🌿</span>
+            MAHJONG JUNGLE
+            <span className="text-2xl">🌿</span>
           </h1>
           <div className="h-4 w-px bg-slate-800" />
           <button 
@@ -137,6 +152,7 @@ export default function App() {
             onClick={requestHint}
             disabled={hintPair !== null}
             className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${hintPair ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'} bg-[#0a2e0a] text-[#39ff14] border border-[#39ff14]/30`}
+            style={{ boxShadow: hintPair ? 'none' : 'var(--glow-green)' }}
           >
             <Sparkles className="w-3 h-3" />
             💡 Hint
@@ -144,14 +160,20 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2 font-mono text-xl font-bold text-white bg-black/40 px-4 py-0.5 rounded-md border border-slate-800">
+          <div 
+            className="flex items-center gap-2 font-mono text-xl font-bold px-4 py-0.5 rounded-md border border-slate-800"
+            style={{ color: '#00ffcc', textShadow: 'var(--glow-cyan)', background: 'rgba(0,0,0,0.4)' }}
+          >
             <Clock className="w-4 h-4 text-slate-500" />
             {time}
           </div>
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="text-xs font-bold uppercase tracking-widest text-amber-500 flex items-center gap-2">
+          <div 
+            className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+            style={{ color: '#ff8c00', textShadow: '0 0 8px rgba(255,140,0,0.5)' }}
+          >
             <span className="text-lg font-black">{pairsRemaining}</span>
             PAIRS LEFT
           </div>
@@ -186,10 +208,11 @@ export default function App() {
               initial={{ opacity: 0, y: -20, x: '-50%' }}
               animate={{ opacity: 1, y: 0, x: '-50%' }}
               exit={{ opacity: 0, y: -20, x: '-50%' }}
-              className="fixed top-20 left-1/2 z-[9999] bg-[#1a1a00] border border-[#ffcc00] text-[#ffcc00] px-6 py-3 rounded-xl font-mono text-sm shadow-[0_0_20px_rgba(255,204,0,0.3)] flex items-center gap-3"
+              className="fixed top-20 left-1/2 z-[9999] bg-[#1a1500] border border-[#ffd700] text-[#ffd700] px-6 py-3 rounded-xl font-mono text-sm shadow-[0_0_20px_rgba(255,215,0,0.3)] flex items-center gap-3"
+              style={{ textShadow: '0 0 8px rgba(255,215,0,0.5)' }}
             >
               <RotateCcw className="w-4 h-4 animate-spin-slow" />
-              🔀 No moves left — board reshuffled!
+              🌿 Ancient spirits reshuffled the tiles!
             </motion.div>
           )}
         </AnimatePresence>

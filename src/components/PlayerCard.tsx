@@ -42,25 +42,29 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
           : 'opacity-55 brightness-[0.75]'}
       `}
       style={{
-        backgroundColor: `${color.secondary}CC`, // 80% opacity
+        background: 'linear-gradient(135deg, rgba(13,31,10,0.95), rgba(6,10,8,0.95))',
         borderLeftColor: color.primary,
-        boxShadow: isCurrentTurn ? color.glow : 'none',
+        boxShadow: isCurrentTurn ? `${color.primary}99 0 0 12px` : `${color.primary}33 0 0 8px`,
       }}
     >
-      {/* Active Turn Indicator */}
+      {/* Active Turn Indicator — Glowing Vine */}
       {isCurrentTurn && (
         <div 
-          className="absolute top-2 right-2 w-2 h-2 rounded-full animate-pulse"
-          style={{ backgroundColor: color.primary }}
-        />
+          className="absolute top-2 right-2 text-lg animate-vine-wiggle"
+          style={{ filter: `drop-shadow(0 0 8px ${color.primary})` }}
+        >
+          🌿
+        </div>
       )}
 
       {/* Avatar */}
       <div 
-        className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+        className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0 border-2"
         style={{ 
-          backgroundColor: color.primary,
-          color: color.secondary
+          background: `radial-gradient(circle, ${color.primary}, ${color.secondary})`,
+          borderColor: color.primary,
+          color: '#ffffff',
+          boxShadow: `0 0 12px ${color.primary}80`
         }}
       >
         {initials}
@@ -69,7 +73,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1">
-          <span className={`font-bold truncate ${isCurrentPlayer ? 'text-white' : 'text-slate-300'}`}>
+          <span className={`font-bold truncate ${isCurrentPlayer ? 'text-[#39ff14]' : 'text-slate-300'}`}>
             {player.name}
           </span>
           {isCurrentPlayer && (
@@ -86,21 +90,14 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       <div className="text-right">
         <div 
           className="text-3xl font-black font-mono tracking-tighter"
-          style={{ color: color.primary }}
+          style={{ 
+            color: color.primary,
+            textShadow: `0 0 8px ${color.primary}`
+          }}
         >
           {player.score}
         </div>
       </div>
-
-      {/* Active Turn Arrow */}
-      {isCurrentTurn && (
-        <div 
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 animate-pulse"
-          style={{ color: color.primary }}
-        >
-          ▶
-        </div>
-      )}
     </div>
   );
 };
